@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace WarlordJanggi.Presentation
 {
     /// <summary>
     /// 하이브리드 카메라 시스템 컨트롤러
     /// - 3D 쿼터뷰 (45° 전장 시네마틱 뷰) ↔ 2D 탑다운 뷰 (90° 판세 분석용 뷰) 전환
-    /// - 마우스 휠 줌 인/아웃 및 부드러운 전환 보간
+    /// - 마우스 휠 줌 인/아웃 및 부드러운 전환 보간 (New Input System 호환)
     /// </summary>
     public sealed class CameraController : MonoBehaviour
     {
@@ -41,17 +42,25 @@ namespace WarlordJanggi.Presentation
 
         private void Update()
         {
-            // 단축키 C 또는 스페이스바로 시점 전환
-            if (Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.Space))
+            var keyboard = Keyboard.current;
+            if (keyboard != null)
             {
-                ToggleViewMode();
+                // 단축키 C 또는 스페이스바로 시점 전환
+                if (keyboard.cKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame)
+                {
+                    ToggleViewMode();
+                }
             }
 
             // 마우스 휠 줌
-            float scroll = Input.GetAxis("Mouse ScrollWheel");
-            if (Mathf.Abs(scroll) > 0.001f)
+            var mouse = Mouse.current;
+            if (mouse != null)
             {
-                ApplyZoom(scroll);
+                float scroll = mouse.scroll.ReadValue().y;
+                if (Mathf.Abs(scroll) > 0.01f)
+                {
+                    ApplyZoom(Mathf.Sign(scroll) * 0.5f);
+                }
             }
 
             // 시점 전환 보간

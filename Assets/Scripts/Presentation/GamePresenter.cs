@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using WarlordJanggi.Core;
 
 namespace WarlordJanggi.Presentation
@@ -100,29 +101,34 @@ namespace WarlordJanggi.Presentation
 
         private void HandleInput()
         {
-            if (Input.GetMouseButtonDown(0))
+            var mouse = Mouse.current;
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
             {
-                OnPrimaryClick();
+                OnPrimaryClick(mouse.position.ReadValue());
             }
 
-            // Z키: 무르기 (Undo)
-            if (Input.GetKeyDown(KeyCode.Z))
+            var keyboard = Keyboard.current;
+            if (keyboard != null)
             {
-                UndoMove();
-            }
+                // Z키: 무르기 (Undo)
+                if (keyboard.zKey.wasPressedThisFrame)
+                {
+                    UndoMove();
+                }
 
-            // P키: 한수 쉼 (Pass)
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                PassTurn();
+                // P키: 한수 쉼 (Pass)
+                if (keyboard.pKey.wasPressedThisFrame)
+                {
+                    PassTurn();
+                }
             }
         }
 
-        private void OnPrimaryClick()
+        private void OnPrimaryClick(Vector2 screenPosition)
         {
             if (_camera == null) return;
 
-            Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+            Ray ray = _camera.ScreenPointToRay(screenPosition);
             if (Physics.Raycast(ray, out var hit, 100f))
             {
                 // 1. 기물을 직접 클릭한 경우

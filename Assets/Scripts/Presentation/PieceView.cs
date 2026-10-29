@@ -11,7 +11,6 @@ namespace WarlordJanggi.Presentation
     /// - 3D 외형, 진영별 네온 베이스, 한자 표식
     /// - 부드러운 이동(도약 포물선), 선택 하이라이트 연출
     /// </summary>
-    [RequireComponent(typeof(Collider))]
     public sealed class PieceView : MonoBehaviour
     {
         public Piece Data { get; private set; }
@@ -36,61 +35,61 @@ namespace WarlordJanggi.Presentation
 
         private void BuildVisualRepresentation()
         {
-            // 1. 기물 바닥 네온 링 베이스 (원판)
+            float bodyHeight = GetHeightForPieceType(Data.Type);
+
+            // 1. 클릭 감지용 박스 컬라이더 설정
+            var col = gameObject.AddComponent<BoxCollider>();
+            col.center = new Vector3(0, bodyHeight * 0.5f + 0.1f, 0);
+            col.size = new Vector3(0.8f, bodyHeight + 0.4f, 0.8f);
+
+            // 2. 기물 바닥 네온 링 베이스 (원판)
             var baseObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             baseObj.name = "NeonBase";
             baseObj.transform.SetParent(transform, false);
-            baseObj.transform.localPosition = new Vector3(0, 0.04f, 0);
-            baseObj.transform.localScale = new Vector3(0.55f, 0.04f, 0.55f);
+            baseObj.transform.localPosition = new Vector3(0, 0.05f, 0);
+            baseObj.transform.localScale = new Vector3(0.65f, 0.05f, 0.65f);
 
             var baseCol = baseObj.GetComponent<Collider>();
             if (baseCol != null) Destroy(baseCol);
 
             var baseRend = baseObj.GetComponent<MeshRenderer>();
-            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Sprites/Default");
+            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
             _baseMaterial = new Material(shader)
             {
                 color = (Data.Camp == CampType.Cho) ? ChoColor : HanColor
             };
             baseRend.material = _baseMaterial;
 
-            // 2. 기물 본체 (기물 종류별 높이와 형태 차별화)
-            float bodyHeight = GetHeightForPieceType(Data.Type);
+            // 3. 기물 본체 (기물 종류별 높이와 형태 차별화)
             var bodyObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             bodyObj.name = "Body";
             bodyObj.transform.SetParent(transform, false);
-            bodyObj.transform.localPosition = new Vector3(0, bodyHeight * 0.5f + 0.08f, 0);
-            bodyObj.transform.localScale = new Vector3(0.42f, bodyHeight * 0.5f, 0.42f);
+            bodyObj.transform.localPosition = new Vector3(0, bodyHeight * 0.5f + 0.1f, 0);
+            bodyObj.transform.localScale = new Vector3(0.5f, bodyHeight * 0.5f, 0.5f);
 
             var bodyCol = bodyObj.GetComponent<Collider>();
             if (bodyCol != null) Destroy(bodyCol);
 
             var bodyRend = bodyObj.GetComponent<MeshRenderer>();
-            var litShader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            var litShader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard") ?? shader;
             var bodyMat = new Material(litShader)
             {
-                color = (Data.Camp == CampType.Cho) ? new Color(0.12f, 0.2f, 0.32f) : new Color(0.32f, 0.12f, 0.12f)
+                color = (Data.Camp == CampType.Cho) ? new Color(0.15f, 0.35f, 0.55f) : new Color(0.55f, 0.15f, 0.15f)
             };
             bodyRend.material = bodyMat;
             _bodyTransform = bodyObj.transform;
 
-            // 3. 상단 한자 라벨 (TextMeshPro)
+            // 4. 상단 한자 라벨 (TextMeshPro)
             var labelObj = new GameObject("HanjaLabel");
             labelObj.transform.SetParent(transform, false);
-            labelObj.transform.localPosition = new Vector3(0, bodyHeight + 0.18f, 0);
-            labelObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // 위를 향하도록 회전
+            labelObj.transform.localPosition = new Vector3(0, bodyHeight + 0.25f, 0);
+            labelObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
 
             _labelTMP = labelObj.AddComponent<TextMeshPro>();
             _labelTMP.text = Data.Type.GetHanja(Data.Camp);
-            _labelTMP.fontSize = 4.5f;
+            _labelTMP.fontSize = 5f;
             _labelTMP.alignment = TextAlignmentOptions.Center;
             _labelTMP.color = Color.white;
-
-            // 4. 클릭 감지용 박스 컬라이더 설정
-            var collider = GetComponent<BoxCollider>();
-            if (collider == null) collider = gameObject.AddComponent<BoxCollider>();
-            collider.center = new Vector3(0, bodyHeight * 0.5f, 0);
-            collider.size = new Vector3(0.6f, bodyHeight + 0.2f, 0.6f);
         }
 
         private static float GetHeightForPieceType(PieceType type)

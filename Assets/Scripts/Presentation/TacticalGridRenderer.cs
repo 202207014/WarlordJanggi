@@ -56,6 +56,22 @@ namespace WarlordJanggi.Presentation
             var linesParent = new GameObject("StaticBoardLines");
             linesParent.transform.SetParent(_nodePoolParent.transform);
 
+            // 0. 마우스 클릭용 투명 바닥 콜라이더 (작전 테이블 평면)
+            var boardPlate = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            boardPlate.name = "BoardClickPlane";
+            boardPlate.transform.SetParent(linesParent.transform);
+            boardPlate.transform.position = _converter.BoardCenterOffset + new Vector3(0f, -0.05f, 0f);
+            boardPlate.transform.localScale = new Vector3(
+                BoardCoord.BoardWidth * _converter.CellSpacingX + 1.5f,
+                0.1f,
+                BoardCoord.BoardHeight * _converter.CellSpacingZ + 1.5f);
+
+            var plateMat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"))
+            {
+                color = new Color(0.12f, 0.09f, 0.07f) // 어두운 목재 작전판 컬러 (콘셉트 아트)
+            };
+            boardPlate.GetComponent<MeshRenderer>().material = plateMat;
+
             // 1. 가로선 10개 (Y: 0 ~ 9)
             for (int y = 0; y < BoardCoord.BoardHeight; y++)
             {
