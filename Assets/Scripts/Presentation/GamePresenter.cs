@@ -32,7 +32,7 @@ namespace WarlordJanggi.Presentation
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void AutoBootstrapInPlayMode()
         {
-            if (FindFirstObjectByType<GamePresenter>() == null)
+            if (FindAnyObjectByType<GamePresenter>() == null)
             {
                 var bootstrapper = new GameObject("[WarlordJanggi_GamePresenter]");
                 bootstrapper.AddComponent<GamePresenter>();

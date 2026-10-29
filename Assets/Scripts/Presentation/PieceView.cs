@@ -81,7 +81,7 @@ namespace WarlordJanggi.Presentation
             labelObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // 위를 향하도록 회전
 
             _labelTMP = labelObj.AddComponent<TextMeshPro>();
-            _labelTMP.text = Data.Camp.GetHanja(Data.Type);
+            _labelTMP.text = Data.Type.GetHanja(Data.Camp);
             _labelTMP.fontSize = 4.5f;
             _labelTMP.alignment = TextAlignmentOptions.Center;
             _labelTMP.color = Color.white;
