@@ -66,16 +66,23 @@ namespace WarlordJanggi.Tests
             Assert.AreEqual(PieceType.Cannon, cannon.Type);
 
             var moves = new List<BoardCoord>();
+
+            // 1. 초기 상태: X=1 열에는 디딤돌이 없고 (1,7)에 한나라 포만 마주보므로 이동할 수 없어야 함
+            _moveGen.GetLegalDestinations(cannon, _board, moves);
+            Assert.IsFalse(moves.Contains(new BoardCoord(1, 4))); // 디딤돌 없음
+            Assert.IsFalse(moves.Contains(new BoardCoord(1, 7))); // 포끼리는 잡을 수 없음
+            Assert.IsFalse(moves.Contains(new BoardCoord(1, 8))); // 포를 넘을 수 없음
+
+            // 2. (1, 4)에 디딤돌 기물(졸)을 하나 배치했을 때
+            _board.PlaceCustomPiece(CampType.Cho, PieceType.Soldier, new BoardCoord(1, 4));
+            moves.Clear();
             _moveGen.GetLegalDestinations(cannon, _board, moves);
 
-            // 포는 디딤돌이 없는 빈 공간으로 그냥 갈 수 없음
-            Assert.IsFalse(moves.Contains(new BoardCoord(1, 1)));
-
-            // 앞의 졸(1, 3)을 뛰어넘어 (1, 4), (1, 5) 등으로 이동 가능해야 함
-            Assert.IsTrue(moves.Contains(new BoardCoord(1, 4)));
+            // 졸(1, 4)을 뛰어넘어 (1, 5), (1, 6)으로는 이동 가능해야 함
             Assert.IsTrue(moves.Contains(new BoardCoord(1, 5)));
+            Assert.IsTrue(moves.Contains(new BoardCoord(1, 6)));
 
-            // 하지만 한나라 포(1, 7)는 뛰어넘을 수도 없고 잡을 수도 없어야 함
+            // 하지만 여전히 한나라 포(1, 7)를 잡거나 뛰어넘어 (1, 8)로 갈 수는 없음
             Assert.IsFalse(moves.Contains(new BoardCoord(1, 7)));
             Assert.IsFalse(moves.Contains(new BoardCoord(1, 8)));
         }

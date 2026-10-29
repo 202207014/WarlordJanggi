@@ -76,6 +76,7 @@
   <Project Path="Unity.AI.Assistant.AssetGenerators.Editor.csproj" />
   <Project Path="UnityEditor.UI.Analytics.csproj" />
   <Project Path="Unity.PathTracing.Runtime.csproj" />
+  <Project Path="WarlordJanggi.Presentation.csproj" />
   <Project Path="Unity.PathTracing.Editor.csproj" />
   <Project Path="Unity.AI.Assistant.Annotations.Editor.csproj" />
   <Project Path="Unity.AppUI.Editor.csproj" />
