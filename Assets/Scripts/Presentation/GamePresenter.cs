@@ -58,6 +58,13 @@ namespace WarlordJanggi.Presentation
                 cameraController = _camera.gameObject.AddComponent<CameraController>();
             }
 
+            // Phase 3 전투 타격 VFX 매니저 준비
+            if (FindAnyObjectByType<CombatFXManager>() == null)
+            {
+                var fxObj = new GameObject("[WarlordJanggi_CombatFX]");
+                fxObj.AddComponent<CombatFXManager>();
+            }
+
             // 룰 엔진 초기화 및 대국 시작
             _engine = new RuleEngine();
             _engine.OnMoveExecuted += HandleMoveExecuted;
@@ -223,8 +230,15 @@ namespace WarlordJanggi.Presentation
 
             if (move.IsCapture && _pieceViews.TryGetValue(move.CapturedPiece.Id, out var capturedView))
             {
+                // Phase 3: 낙뢰 직격 VFX 및 카메라 쉐이크 재생
+                if (CombatFXManager.Instance != null)
+                {
+                    Vector3 targetWorld = _converter.ToWorldPosition(move.To);
+                    CombatFXManager.Instance.PlayCaptureStrike(targetWorld, move.Piece.Camp, move.Piece.Type);
+                }
+
                 capturedView.AnimateCaptured();
-                AddBattleLog($"{GetCampName(move.Piece.Camp)}의 {move.Piece.Type.GetKoreanName(move.Piece.Camp)}이(가) " +
+                AddBattleLog($"⚡ {GetCampName(move.Piece.Camp)}의 {move.Piece.Type.GetKoreanName(move.Piece.Camp)}이(가) " +
                              $"{GetCampName(move.CapturedPiece.Camp)}의 {move.CapturedPiece.Type.GetKoreanName(move.CapturedPiece.Camp)}을(를) 격파했습니다!");
             }
             else

@@ -10,6 +10,9 @@ namespace WarlordJanggi.Presentation
     /// </summary>
     public sealed class CameraController : MonoBehaviour
     {
+        private static CameraController _instance;
+        public static CameraController Instance => _instance;
+
         [Header("카메라 시점 프리셋")]
         [SerializeField] private Vector3 quarterViewOffset = new Vector3(0f, 9.5f, -9.5f);
         [SerializeField] private Vector3 quarterViewEuler = new Vector3(45f, 0f, 0f);
@@ -32,8 +35,14 @@ namespace WarlordJanggi.Presentation
         private Vector3 _targetPos;
         private Quaternion _targetRot;
 
+        // 카메라 쉐이크 변수
+        private float _shakeTimer;
+        private float _shakeIntensity;
+        private Vector3 _shakeOffset;
+
         private void Awake()
         {
+            if (_instance == null) _instance = this;
             _mainCamera = GetComponent<Camera>();
             if (_mainCamera == null) _mainCamera = Camera.main;
 
@@ -72,6 +81,24 @@ namespace WarlordJanggi.Presentation
                 transform.position = Vector3.Lerp(_startPos, _targetPos, t);
                 transform.rotation = Quaternion.Slerp(_startRot, _targetRot, t);
             }
+
+            // 카메라 쉐이크 처리
+            if (_shakeTimer > 0f)
+            {
+                _shakeTimer -= Time.deltaTime;
+                float factor = _shakeTimer / 0.35f;
+                _shakeOffset = Random.insideUnitSphere * (_shakeIntensity * factor);
+                transform.position += _shakeOffset;
+            }
+        }
+
+        /// <summary>
+        /// 타격 순간 카메라 쉐이크 트리거
+        /// </summary>
+        public void TriggerShake(float intensity = 0.3f, float duration = 0.3f)
+        {
+            _shakeIntensity = intensity;
+            _shakeTimer = duration;
         }
 
         public void ToggleViewMode()
